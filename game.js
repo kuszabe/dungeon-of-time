@@ -4,7 +4,7 @@ kaboom()
 //create variables
 const WOBBLESPEED = 1.5
 const MAXWOBBLE = 8
-const PLAYERSPEED = 50
+const PLAYERSPEED = 100
 
 //load the assets
 loadBean()
@@ -12,7 +12,7 @@ loadBean()
 //make the player
 const player = add([
     sprite("bean"),
-    pos(0, 0),
+    pos(center()),
     anchor("center"),
     rotate(0),
     //this tells us which direction to rotate in the walk anim(wobble)
@@ -107,18 +107,19 @@ player.onUpdate(() => {
 
 //this moves the player
 
-onKeyDown("right", () => {
+
+onKeyDown("d", () => {
     player.move(PLAYERSPEED, 0)
 })
 
-onKeyDown("left", () => {
+onKeyDown("a", () => {
     player.move(-PLAYERSPEED, 0)
 })
 
-onKeyDown("down", () => {
+onKeyDown("s", () => {
     player.move(0, PLAYERSPEED)
 })
 
-onKeyDown("up", () => {
+onKeyDown("w", () => {
     player.move(0, -PLAYERSPEED)
 })
