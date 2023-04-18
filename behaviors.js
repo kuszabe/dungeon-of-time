@@ -1,0 +1,3 @@
+function goblin(damage) {
+    
+}
