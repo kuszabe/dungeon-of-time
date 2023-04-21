@@ -1,5 +1,5 @@
 //initalizeee the game
-kaboom({scale:3})
+kaboom({scale:3, pixelPerfect: true})
 
 //create variables
 const WOBBLESPEED = 1.5
@@ -110,7 +110,7 @@ loadSprite("B","tile_0090.png")
 // loadSprite("","tile_0096.png")
 loadSprite("knight","tile_0097.png")
 loadSprite("sword","tile_0104.png")
-// loadSprite("","tile_0099.png")
+loadSprite("Y","tile_111.png")
 
 scene("game", () => {
     //make the player
@@ -139,21 +139,22 @@ scene("game", () => {
         { duration: 0.1, attack: false, rotationoffset: 240, swing: 90 }
     ])
 
-    //rotate it towards the mouse
+    sword.flipX = true
 
+    //rotate it towards the mouse
     sword.onUpdate(() => {
         if (toWorld(mousePos()).x < player.pos.x) {
             if (sword.rotationoffset > 0) sword.rotationoffset *= -1
             sword.anchor = "top"
             if (sword.swing > 0) sword.swing *= -1
-            if (sword.swing > 0) sword.swing *= -1
             sword.pos.x = -5
+            sword.flipY = true
         } else {
-            console.log("negatif")
             if (sword.rotationoffset < 0) sword.rotationoffset *= -1
             if (sword.swing < 0) sword.swing *= -1
             sword.pos.x = 5
             sword.anchor = "bot"
+            sword.flipY = false
         }
         sword.rotateTo((player.pos.angle(mousePos())) + sword.rotationoffset)
     })
@@ -201,7 +202,7 @@ scene("game", () => {
             // how value should be updated
             (val) => sword.rotationoffset = val,
             // interpolation function (defaults to easings.linear)
-            easings.bounceOut,
+            easings.easeOutBouce,
         )
 
         wait(sword.duration, () => {
@@ -217,7 +218,7 @@ scene("game", () => {
                 // how value should be updated
                 (val) => sword.rotationoffset = val,
                 // interpolation function (defaults to easings.linear)
-                easings.easeIn,
+                easings.linear,
             )
             wait(sword.duration, () => {
                 sword.attack = false
@@ -236,6 +237,14 @@ scene("game", () => {
             player.angle = 0
         }
         player.positionlastframe = player.pos
+    })
+
+    player.onUpdate(() => {
+        if (toWorld(mousePos()).x < player.pos.x) {
+            player.flipX = true
+        } else {
+            player.flipX = false
+        }
     })
 
     //this moves the player
@@ -276,7 +285,60 @@ scene("game", () => {
                         this.pos.add((this.pos.sub(player.pos)).unit().scale(knockback)),
                         duration,
                         (val) => this.pos = val,
-                        easings.easeOutExpowa
+                        easings.easeOutExpo
+                    )
+                })
+            },
+
+            update() {
+                if (this.isColliding(player)) {
+                    //decrease player's health
+                    if (time() - lastattack > attackspeed) {
+                        lastattack = time()
+                        player.hurt(damage)
+                        let duration = 0.5
+                        let knockback = 25
+                        if (player.ctween) player.ctween.cancel()
+                        ctween = tween(
+                            player.pos,
+                            player.pos.add((player.pos.sub(this.pos)).unit().scale(knockback)),
+                            duration,
+                            (val) => player.pos = val,
+                            easings.easeOutExpo
+                        )
+                    }
+                } else {
+                    this.moveTo(player.pos, speed)
+                }
+            },
+
+            inspect() {
+                return "I am a chunky goblin"
+            },
+        }
+    }    
+    function goblin(damage, speed, attackspeed) {
+        let tweenCur = null
+        let lastattack = time()
+        return {
+
+            id: "goblin",
+            require: ["pos", "area"],
+
+            add() {
+                this.on("death", () => {
+                    destroy(this)
+                })
+                this.on("hurt", () => {
+                    let duration = 0.7
+                    let knockback = 15
+                    if (tweenCur) tweenCur.cancel()
+                    tweenCur = tween(
+                        this.pos,
+                        this.pos.add((this.pos.sub(player.pos)).unit().scale(knockback)),
+                        duration,
+                        (val) => this.pos = val,
+                        easings.easeOutExpo
                     )
                 })
             },
@@ -307,7 +369,7 @@ scene("game", () => {
             },
 
             inspect() {
-                return "I am a chunky goblin"
+                return "I am a sneaky wizard"
             },
         }
     }
