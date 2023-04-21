@@ -360,7 +360,7 @@ scene("game", () => {
                         destroy(bullet)
                         player.hurt(damage)
                         let duration = 0.1
-                        let knockback = 5
+                        let knockback = 2
                         if (player.ctween) player.ctween.cancel()
                         player.ctween = tween(
                             player.pos,
